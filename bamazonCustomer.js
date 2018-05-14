@@ -43,18 +43,52 @@ function start() {
     })
     .then(function(answer) {
       if (answer.ask.toUpperCase() === "YES") {
+        purchaseProduct();
       }
       else {
         console.log("You are missing out on some great products!");
       }
-    })
+    });
 }
 
 function purchaseProduct() {
-  connection.query("SELECT * FROM products", function(err, res) {
-    if (err) throw err;
-    console.log(res);
-    connection.end();
-  });
+  inquirer
+    .prompt([
+      {
+        name: "productChoice",
+        type: "input",
+        message: "Please enter the product id of the product you would like to purchase: "
+      },
+      {
+        name: "productAmt",
+        type: "input",
+        message: "How many of units of the product would you like?"
+      }
+    ])
+    .then(function(answer){
+      connection.query(
+        "SELECT * FROM products", 
+        function(err, res) {
+          if (err) throw err;
+          console.log(answer.productChoice);
+          console.log(answer.productAmt);
+          var chosenItem;
+          var customerProduct = parseInt(answer.productChoice);
+          for (var i = 0; i < res.length; i++) {
+            if (res[i].item_id === customerProduct) {
+              chosenItem = res[i];
+              console.log(chosenItem);
+            }
+          }
+
+          // if (res.stock_quantity < answer.productAmt) {
+          //   console.log("We are currently sold out of this item. Please select another item");
+          // }
+          // else {
+          //   console.log("We are shipping " + answer.productAmt + " " + res.product_name + " to you!");
+          // }
+        }
+      );
+    });
 }
 
