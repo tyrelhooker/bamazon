@@ -16,25 +16,8 @@ var table = new Table({
 
 connection.connect(function(err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId);
   start();
-  
 });
-
-function displayProducts() {
-  var query = connection.query("SELECT * FROM products", function(err, res){
-    if (err) throw err;
-    res.forEach(function(res) {
-      table.push(
-        [res.item_id, res.product_name, res.price]
-      );
-    });
-    console.log(table.toString());
-    purchaseProduct();
-    
-  });
-  console.log(query.sql);
-};
 
 function start() {
   inquirer
@@ -54,10 +37,23 @@ function start() {
     });
 }
 
+function displayProducts() {
+  var query = connection.query("SELECT * FROM products", function(err, res){
+    if (err) throw err;
+    res.forEach(function(res) {
+      table.push(
+        [res.item_id, res.product_name, res.price]
+      );
+    });
+    console.log(table.toString());
+    purchaseProduct();
+  });
+  console.log(query.sql);
+};
+
 function purchaseProduct() {
   connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
-    
     inquirer
       .prompt([
         {
@@ -72,8 +68,8 @@ function purchaseProduct() {
         }
       ])
       .then(function(answer){
-        console.log(answer.productChoice);
-        console.log(answer.productAmt);
+        // console.log(answer.productChoice);
+        // console.log(answer.productAmt);
         
         var chosenItem;
         var custProd = parseInt(answer.productChoice);
@@ -85,7 +81,7 @@ function purchaseProduct() {
             chosenItem = res;
           }
         });
-        console.log(chosenItem.stock_quantity);
+        // console.log(chosenItem.stock_quantity);
 
         if (chosenItem.stock_quantity < custProdAmt) {
           console.log("We are currently sold out of this item. We currently only have " + chosenItem.stock_quantity + " in stock. Please select another item");
@@ -94,11 +90,11 @@ function purchaseProduct() {
         else {
           var total = chosenItem.price * custProdAmt;
 
-          console.log("We are shipping " + custProdAmt + " " + chosenItem.product_name + " to you!");
-          console.log("Your total cost is: " + total);
+          console.log("\nThank you for your purchase. We are shipping " + custProdAmt + " " + chosenItem.product_name + " to you!\n");
+          console.log("\nYour total cost is: " + total + "\n");
 
           var updateStock = parseInt(chosenItem.stock_quantity) - custProdAmt;
-          console.log(updateStock);
+          // console.log(updateStock);
           updateProductQuantity(updateStock, custProd); 
         }
       }
@@ -119,9 +115,27 @@ function updateProductQuantity(updateStock, custProd) {
     ],
     function(err, res) {
       if (err) throw err;
-      console.log(res.affectedRows + " products updated!");
-      displayProducts();
+      console.log(res.affectedRows + " products updated!\n\n");
+      anotherPurchase();
     }
   );
+}
+
+function anotherPurchase() {
+  inquirer
+    .prompt({
+      name: "reask",
+      type: "list",
+      message: "Would you like to make another purchase an item?",
+      choices: ["YES", "NO"]
+    })
+    .then(function(answer) {
+      if (answer.ask.toUpperCase() === "YES") {
+      displayProducts();
+      }
+      else {
+        console.log("Thank you for your purchase. We appreciate your business");
+      }
+    });
 }
 
