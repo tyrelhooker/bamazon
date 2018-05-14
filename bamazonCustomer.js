@@ -93,14 +93,14 @@ function purchaseProduct() {
           console.log("\nYour total cost is: " + total + "\n");
           // Creates variable to pass into updateStock()
           var updateStock = parseInt(chosenItem.stock_quantity) - custProdAmt;
-          updateStock(updateStock, custProd); 
+          updateProdStock(updateStock, custProd); 
         }
       }
     );
   });
 }
 // Updates the stock in DB after user purchase
-function updateStock(updateStock, custProd) {
+function updateProdStock(updateStock, custProd) {
   connection.query(
     "UPDATE products SET ? WHERE ?",
     [
@@ -124,11 +124,11 @@ function anotherPurchase() {
     .prompt({
       name: "reask",
       type: "list",
-      message: "Would you like to make another purchase an item?",
+      message: "Would you like to make another purchase?",
       choices: ["YES", "NO"]
     })
     .then(function(answer) {
-      if (answer.ask.toUpperCase() === "YES") {
+      if (answer.reask.toUpperCase() === "YES") {
       displayProducts();
       }
       else {
