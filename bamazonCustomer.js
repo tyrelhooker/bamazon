@@ -73,22 +73,76 @@ function purchaseProduct() {
           console.log(answer.productChoice);
           console.log(answer.productAmt);
           var chosenItem;
-          var customerProduct = parseInt(answer.productChoice);
-          for (var i = 0; i < res.length; i++) {
-            if (res[i].item_id === customerProduct) {
-              chosenItem = res[i];
-              console.log(chosenItem);
+          var custProd = parseInt(answer.productChoice);
+          var custProdAmt = parseInt(answer.productAmt);
+          // for (var i = 0; i < res.length; i++) {
+          //   if (res[i].item_id === custProd) {
+          //     chosenItem = res[i];
+          //     console.log(chosenItem);
+          //   }
+          // }
+          res.forEach(function(res) {
+            // console.log(res);
+            if (res.item_id === custProd) {
+              chosenItem = res;
+              console.log("Chosen item check in loop: " + chosenItem);
             }
-          }
+          });
+          console.log("Chosen item check out loop:\n" + chosenItem);
+          console.log(chosenItem.stock_quantity);
 
-          // if (res.stock_quantity < answer.productAmt) {
-          //   console.log("We are currently sold out of this item. Please select another item");
-          // }
-          // else {
-          //   console.log("We are shipping " + answer.productAmt + " " + res.product_name + " to you!");
-          // }
+          if (chosenItem.stock_quantity < custProdAmt) {
+            console.log("We are currently sold out of this item. Please select another item");
+          }
+          else {
+            console.log("We are shipping " + custProdAmt + " " + chosenItem.product_name + " to you!");
+            updateProductQuantity();
+            // var updateStock = parseInt(chosenItem.stock_quantity) - custProdAmt;
+            // // updateStock = parseInt(updateStock);
+            // console.log(updateStock);
+
+          //  connection.query(
+          //     "UPDATE products SET ? WHERE ?",
+          //     [
+          //       {
+          //         stock_quantity: updateStock
+          //       },
+          //       {
+          //         item_id: chosenItem.id
+          //       }
+          //     ],
+          //     function(err, res) {
+          //       if (err) throw err;
+          //       console.log(res.affectedRows + " products updated!")
+          //     }
+          //   );
+          //   console.log("The stock was updated: " + chosenItem.stock_quantity);
+          }
         }
       );
     });
+}
+
+function updateProductQuantity() {
+  var updateStock = parseInt(chosenItem.stock_quantity) - custProdAmt;
+  updateStock = parseInt(updateStock);
+  console.log(updateStock);
+
+ connection.query(
+    "UPDATE products SET ? WHERE ?",
+    [
+      {
+        stock_quantity: "updateStock"
+      },
+      {
+        item_id: "chosenItem.id"
+      }
+    ],
+    function(err, res) {
+      if (err) throw err;
+      console.log(res.affectedRows + " products updated!")
+    }
+  );
+  console.log("The stock was updated: " + chosenItem.stock_quantity);
 }
 
